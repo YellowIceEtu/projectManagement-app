@@ -1,0 +1,69 @@
+
+<div class="hidden bg-yellow-500 bg-red-500 bg-blue-500 bg-green-500"></div>
+
+<h2 mat-dialog-title>Détails de la tâche</h2>
+
+
+<div class="w-full md:max-w-[850px] mx-auto mt-6 px-4">
+  <div class="" *ngIf="!isEditMode">
+  <div class="bg-white shadow-xl rounded-2xl p-6 border border-gray-100">
+    <div class="flex justify-between items-start">
+      <div>
+        <h2 class="text-xl font-semibold text-gray-800">{{task.title}}</h2>
+
+        <span >
+          <p class="text-sm text-gray-500 mt-1">
+Tâche assignée à 
+          </p>
+       <span class="text-sm text-gray-500 mt-1" *ngFor="let c of task.collaborators; let last = last">
+{{ c.email }}
+
+<span *ngIf="!last"> ,</span><span *ngIf="last">.</span>
+       </span> 
+        
+        
+        
+        </span>
+      </div>
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                  " [ngClass]="'bg-' + statusColors[task.status] + '-500'">
+             
+        {{statusLabels[task.status]}}
+      </span>
+    </div>
+
+    <div class="mt-4 text-gray-700">
+      <p class="text-sm">Description :</p>
+      <p class="text-sm mt-1">{{task.description}}.</p>
+    </div>
+
+    <div class="mt-4 grid grid-cols-2 gap-4 text-sm text-gray-600">
+      <div>
+        <span class="font-medium">Début :</span>
+        <p>{{task.startDate}}</p>
+      </div>
+      <div>
+        <span class="font-medium">Fin :</span>
+        <p>{{task.endDate}}</p>
+      </div>
+    </div>
+
+    <div class="mt-6 flex justify-end space-x-3">
+      <button class="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg text-sm hover:bg-gray-200"  (click)="toggleEdit()">
+        Modifier
+      </button>
+      <button class="bg-red-100 text-red-600 px-4 py-2 rounded-lg text-sm hover:bg-red-200" (click)="openConfirmDialog()">
+        Supprimer
+      </button>
+      <button class="bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm hover:bg-green-200" (click)="onClose()">
+        Terminé
+      </button>
+    </div>
+  </div>
+  </div>
+
+   <div  *ngIf="isEditMode">
+         
+  <app-task-form [task]="task" mode="edit" (formSubmit)="onFormSubmit($event)" (cancel)="toggleEdit()"></app-task-form>
+</div>
+</div>

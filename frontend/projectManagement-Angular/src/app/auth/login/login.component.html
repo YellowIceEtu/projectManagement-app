@@ -1,0 +1,94 @@
+<section class="flex items-center justify-center min-h-screen bg-gray-100">
+  <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-sm space-y-6">
+    <div class="text-center">
+      <h1 class="text-3xl font-bold text-[#002B2F]">Connexion</h1>
+    </div>
+
+    <div *ngIf="errorMessage" class="text-sm text-red-600 text-center bg-red-100 p-2 rounded-md">
+  {{ errorMessage }}
+</div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
+      <!-- Email -->
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Adresse email</label>
+        <div class="relative mt-1">
+          <input
+            id="email"
+            type="email"
+            name="email"
+            formControlName="email"
+            placeholder="Email"
+            class="w-full px-4 py-2 border rounded-md shadow-sm text-sm focus:ring-[#002B2F] focus:border-[#002B2F]"
+          />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Mot de passe</label>
+        <div class="relative mt-1">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            name="password"
+            formControlName="password"
+            placeholder="Mot de passe"
+            class="w-full px-4 py-2 border rounded-md shadow-sm text-sm focus:ring-[#002B2F] focus:border-[#002B2F]"
+          />
+          <button
+            type="button"
+            (click)="togglePasswordVisibility()"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500"
+            tabindex="-1"
+          >
+            <svg
+              *ngIf="!showPassword"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M1 1l22 22" />
+              <path d="M17.94 17.94A10.92 10.92 0 0112 20c-5.52 0-10-4.48-10-10a9.86 9.86 0 013.22-7.42M14.12 14.12A3 3 0 019.88 9.88M9.88 9.88L4.22 4.22" />
+            </svg>
+            <svg
+              *ngIf="showPassword"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div>
+        <button
+          type="submit"
+          class="w-full bg-[#002B2F] text-white text-sm py-2 rounded-md hover:bg-[#014349] transition"
+        >
+          Se connecter
+        </button>
+      </div>
+
+      <!-- Redirect -->
+      <div class="text-center text-sm">
+        Pas encore de compte ?
+        <a href="/register" class="font-semibold text-[#002B2F] hover:underline">Inscrivez-vous ici</a>
+      </div>
+    </form>
+  </div>
+</section>

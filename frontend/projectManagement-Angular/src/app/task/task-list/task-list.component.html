@@ -1,0 +1,80 @@
+<div class=" grid grid-cols-4 gap-4 p-6 space-y-8 min-h-screen min-w-screen" style="background-color: #f3f6fd;">
+
+  <div>
+    <h1 class="text-xl font-semibold text-gray-800 mb-4"> To Do Tasks </h1>
+    <div class=" rounded-xl shadow-sm p-4 mb-4 bg-white hover:shadow-md transition-shadow duration-200"
+      *ngFor="let toDoTask of toDoTasks">
+
+      <h2 class="text-md font-medium text-gray-900"> {{toDoTask.title}}</h2>
+
+
+      <div class="flex justify-between mt-1 text-sm text-gray-500"> <span>
+          <p class="text-xs text-gray-600" *ngFor="let c of toDoTask.collaborators">👤 {{c.username}}</p>
+        </span>
+        <span>
+
+          {{toDoTask.creationDate}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div>
+
+    <h1 class="text-xl font-semibold text-gray-800 mb-4"> Late Task </h1>
+    <div class=" rounded-xl shadow-sm p-4 mb-4 bg-white hover:shadow-md transition-shadow duration-200"
+      *ngFor="let lateTask of lateTasks">
+
+      <h2 class="text-md font-medium text-gray-900"> {{lateTask.title}}</h2>
+
+
+      <div class="flex justify-between mt-1 text-sm text-gray-500"> <span>
+          <p class="text-xs text-gray-600" *ngFor="let c of lateTask.collaborators"> {{c.username}}</p>
+        </span>
+        <span>
+
+          {{lateTask.creationDate}}</span>
+      </div>
+    </div>
+ 
+</div>
+  
+ <div>
+
+    <h1 class="text-xl font-semibold text-gray-800 mb-4"> In Progress </h1>
+    <div class=" rounded-xl shadow-sm p-4 mb-4 bg-white hover:shadow-md transition-shadow duration-200"
+      *ngFor="let inProgressTask of inProgressTasks">
+
+      <h2 class="text-md font-medium text-gray-900"> {{inProgressTask.title}}</h2>
+
+
+      <div class="flex justify-between mt-1 text-sm text-gray-500"> <span>
+          <p class="text-xs text-gray-600" *ngFor="let c of inProgressTask.collaborators">👤 {{c.username}}</p>
+        </span>
+        <span>
+
+          {{inProgressTask.creationDate}}</span>
+      </div>
+    </div>
+  </div>
+ 
+
+ <div>
+
+    <h1 class="text-xl font-semibold text-gray-800 mb-4"> Finish Tasks </h1>
+    <div class=" rounded-xl shadow-sm p-4 mb-4 bg-white hover:shadow-md transition-shadow duration-200"
+      *ngFor="let finishTask of finishTasks">
+
+      <h2 class="text-md font-medium text-gray-900"> {{finishTask.title}}</h2>
+
+
+      <div class="flex justify-between mt-1 text-sm text-gray-500"> <span>
+          <p class="text-xs text-gray-600" *ngFor="let c of finishTask.collaborators">👤 {{c.username}}</p>
+        </span>
+        <span>
+
+          {{finishTask.creationDate}}</span>
+      </div>
+    </div>
+  </div>
+
+</div>

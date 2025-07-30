@@ -1,0 +1,115 @@
+<div class="p-6 space-y-8 min-h-screen" style="background-color: #f3f6fd;">
+
+
+        <h1 class="text-3xl font-bold text-gray-800"> Dashboard</h1>
+
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+
+        <div class=" bg-white  rounded-2xl shadow-md overflow-hidden p-4">
+            <p class=" font-normal text-gray-600 "> Tâches Totales</p>
+            <h1 class="font-bold text-2xl ">{{total}}</h1>
+
+        </div>
+
+        <div class=" bg-white  rounded-2xl shadow-md overflow-hidden p-4">
+            <p class=" font-normal text-gray-600 "> A faire aujourd'hui </p>
+            <h1 class="font-bold text-2xl ">{{emergencyTotal}}</h1>
+
+        </div>
+
+        <div class=" bg-white  rounded-xl shadow-md overflow-hidden p-4">
+            <p class=" font-normal text-gray-600 "> En retard </p>
+            <h1 class="font-bold text-2xl text-red-500">{{lateTotal}}</h1>
+
+        </div>
+
+        <div class=" bg-white  rounded-xl shadow-md overflow-hidden p-4">
+            <p class=" font-normal text-gray-600 "> Taches terminées</p>
+            <h1 class="font-bold text-2xl text-green-500 ">{{finishTotal}}</h1>
+
+        </div>
+
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 ">
+
+
+  <div class=" bg-white  rounded-xl shadow-md overflow-hidden p-4">
+            <h1 class=" font-normal text-gray-600 m-2 "> A venir 
+            </h1>
+        
+            <ul>
+                <div class="flex justify-between m-2" *ngFor="let tasks of upcomingTaskList"> 
+                    <li>  {{tasks.title}} </li>
+                    <p>{{tasks.startDate}} </p>
+
+                </div>
+               
+            </ul>
+
+        </div>
+
+
+        <div class=" bg-white  rounded-xl shadow-md overflow-hidden p-4">
+            <h1 class=" text-xl font-semibold mb-4 "> Productivité
+            </h1>
+        
+            <div class="h-40 flex items-center justify-center text-gray-400">
+        [Graphique ici]
+      </div>
+
+
+        </div>
+
+
+    </div>
+
+
+
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 m-4">
+
+
+  <div class=" bg-white  rounded-2xl shadow-md overflow-hidden p-6">
+            <h1 class=" text-xl font-semibold mb-4 "> Liens rapides
+            </h1>
+        
+            <div class="flex flex-col gap-2">
+        <a href="/add-task" class="text-blue-600 hover:underline">➕ Créer une tâche</a>
+        <a href="/calendar" class="text-blue-600 hover:underline">📅 Voir le calendrier</a>
+        <a href="/tasks" class="text-blue-600 hover:underline">📋 Voir toutes les tâches</a>
+      </div>
+
+
+        </div>
+
+
+
+
+
+         <div class=" bg-white  rounded-2xl shadow-md overflow-hidden p-6">
+            <h1 class=" text-xl font-semibold mb-4 "> Historique Récent
+            </h1>
+        
+            <ul class="text-gray-600 space-y-2 text-sm">
+                
+                    <li> Tâches "réviser le budget" marquée comme terminée </li>
+             
+                    <li>Nouvelles Tâche "Préparer la réunion" créée </li>
+             
+                    <li>  Tâche "ancien rapport" supprimée</li>
+               
+            </ul>
+
+        </div>
+
+
+
+    </div>
+
+
+
+    
+
+</div>
