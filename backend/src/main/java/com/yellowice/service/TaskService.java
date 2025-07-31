@@ -56,6 +56,7 @@ public class TaskService {
         }
 
         task.setProject(project);
+        project.setCollaborators(task.getCollaborators());
 
 
         return this.taskRepository.save(task);

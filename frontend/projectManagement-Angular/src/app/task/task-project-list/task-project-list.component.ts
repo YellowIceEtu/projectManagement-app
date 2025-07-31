@@ -6,6 +6,9 @@ import { CommonModule, NgFor } from '@angular/common';
 import { Task } from '../../models/task.model';
 import { TaskService } from '../task.service';
 import { Status, statusColors, statusLabels } from '../../models/status.model';
+import { TaskFormComponent } from '../task-form/task-form.component';
+import { MatDialog } from '@angular/material/dialog';
+import { TaskDetailsDialogComponent } from '../task-details-dialog/task-details-dialog.component';
 
 @Component({
   selector: 'app-task-project-list',
@@ -28,9 +31,10 @@ export class TaskProjectListComponent {
   constructor(
     public projectService: ProjectService,
     private route: ActivatedRoute,
-    public taskService: TaskService
+    public taskService: TaskService,
+    private dialog: MatDialog
   ) {
-    this.route.paramMap.subscribe((params) => {
+    this.route.parent?.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.projectIdSignal.set(id); // met à jour le signal
@@ -40,6 +44,8 @@ export class TaskProjectListComponent {
       const id = this.projectIdSignal();
       if (id) {
         this.getProjectById(id);
+
+        // this.taskService.fetchTaskByProjectFromUser(id);
         this.loadTask(id);
       }
     });
@@ -57,7 +63,7 @@ export class TaskProjectListComponent {
   getProjectById(id: string) {
     this.projectService.getProjectById(id).subscribe({
       next: (result) => {
-        this.projectService.projectIdSignal.set(result);
+        // this.projectService.projectIdSignal.set(result);
         console.log('test ?? ', result);
       },
       error: (error) => {
@@ -76,6 +82,21 @@ export class TaskProjectListComponent {
         ...task,
         creationDate: this.formatDateToFrench(task.creationDate),
       }));
+    });
+  }
+
+  updateTaskFromProjectaskList(taskId?: number) {
+    if (typeof taskId !== 'number') {
+      console.warn('taskId invalide :', taskId);
+      return;
+    }
+    this.taskService.getTaskById(taskId.toString()).subscribe({
+      next: (result) => {
+        this.dialog.open(TaskDetailsDialogComponent, {
+          data: result,
+          width: '800px',
+        });
+      },
     });
   }
 }

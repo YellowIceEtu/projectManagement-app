@@ -52,7 +52,7 @@ export class LoginComponent implements OnInit {
         .subscribe({
           next: () => {
             console.log('Login réussi');
-            this.router.navigate(['/projects']); // Redirection après succès
+            this.router.navigate(['/projects/1']); // Redirection après succès
           },
           error: (err) => {
             if (err.status == 401) {

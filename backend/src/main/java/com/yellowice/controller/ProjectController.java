@@ -1,7 +1,9 @@
 package com.yellowice.controller;
 
 import com.yellowice.dto.ProjectDTO;
+import com.yellowice.dto.UserDTO;
 import com.yellowice.model.Project;
+import com.yellowice.model.User;
 import com.yellowice.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +51,17 @@ public class ProjectController {
     public ResponseEntity<ProjectDTO> getProjectId(@PathVariable Long id){
         ProjectDTO project = projectService.getProjectId(id);
         return ResponseEntity.ok(project);
+    }
+
+    @GetMapping("/get-project/members")
+    public ResponseEntity<List<UserDTO>> getUsersFromEachProject(){
+        return ResponseEntity.ok(this.projectService.getUsersFromEachProject());
+    }
+
+    @DeleteMapping("/delete-project/{projectId}")
+    public ResponseEntity<Void> deleteProjectById(@PathVariable Long projectId){
+        this.projectService.deleteProjectById(projectId);
+        return ResponseEntity.noContent().build();
     }
 
 }

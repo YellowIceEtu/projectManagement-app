@@ -69,7 +69,7 @@ export class TaskService {
     return this.tasksProjectUser$;
   }
 
-  getTaskById(id: number): Observable<Task> {
+  getTaskById(id: string): Observable<Task> {
     return this.http.get<Task>(`http://localhost:8080/task/get-task/${id}`);
   }
 

@@ -26,7 +26,8 @@
                                 <div
                                     class="bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition-shadow w-16 h-16 flex justify-center mr-3">
                                     <img src="icons8-dossier-50.png" alt="icone" class="w-8 h-8">                        </div>
-                    <a [routerLink]="['task/',project.id]">
+                                    <a [routerLink]="['/projects', project.id, 'task']">
+
                         <h2 class="text-md font-medium text-gray-900"> {{project.name}}</h2>
                         <p class="text-sm text-gray-500"> {{project.creationDate}}</p>
                     </a>
@@ -48,10 +49,10 @@
            
             <div class="flex gap-8 border-b border-gray-300 mb-6 mt-6 w-[90%]">
 
-                <a [routerLink]="['details', selectedProject?.id]"  routerLinkActive="border-b-4 border-gray-800 font-semibold text-gray-800"
+                <a [routerLink]="['details']"  routerLinkActive="border-b-4 border-gray-800 font-semibold text-gray-800"
                 class="pb-2"
                 > Overview </a>
-                <a [routerLink]="['task', selectedProject?.id]" routerLinkActive="border-b-4 border-gray-800 font-semibold text-gray-800" class="pb-2"> Task </a>
+                <a [routerLink]="['task']" routerLinkActive="border-b-4 border-gray-800 font-semibold text-gray-800" class="pb-2"> Task </a>
                 <a [routerLink]="['/collaboratorsList']" class="pb-2"> Members </a>
     
             </div>

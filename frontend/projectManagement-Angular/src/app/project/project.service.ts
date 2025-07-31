@@ -15,8 +15,6 @@ export class ProjectService {
 
   private hasFetched = false;
 
-  projectIdSignal = signal<Project | null>(null);
-
   fetchProject() {
     if (this.hasFetched) return;
     this.http
