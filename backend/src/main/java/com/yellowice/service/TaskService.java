@@ -51,12 +51,14 @@ public class TaskService {
                 usersForTask.add(userToAddForTask);
             }
             task.setCollaborators(usersForTask);
+            Set<User> updateCollaboratorsProject = new HashSet<>(project.getCollaborators());
+            updateCollaboratorsProject.addAll(task.getCollaborators());
+            project.setCollaborators(new ArrayList<>(updateCollaboratorsProject));
         } else {
             task.setCollaborators(null);
         }
 
         task.setProject(project);
-        project.setCollaborators(task.getCollaborators());
 
 
         return this.taskRepository.save(task);

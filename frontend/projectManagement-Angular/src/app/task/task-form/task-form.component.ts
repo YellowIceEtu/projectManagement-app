@@ -5,6 +5,7 @@ import {
   Inject,
   Input,
   OnInit,
+  Optional,
   Output,
 } from '@angular/core';
 import {
@@ -44,16 +45,6 @@ export class TaskFormComponent implements OnInit {
 
   @Output() cancel = new EventEmitter<void>();
 
-  // taskToUdpate: Task ={
-  //   "title": '',
-  //   "endDate": '',
-  //   "startDate": '',
-  //   "description": '',
-  //   "creationDate": '',
-  //   "collaborators": [],
-
-  // } ;
-
   userList: User[] = [];
 
   taskForm: FormGroup;
@@ -66,19 +57,19 @@ export class TaskFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private taskService: TaskService,
     private userService: UserService,
     private dialog: MatDialog,
+    @Optional()
     @Inject(MAT_DIALOG_DATA)
-    public data: { task: Task; mode: 'create' | 'edit'; startDate?: string },
-    private dialogRef: MatDialogRef<TaskFormComponent>
+    public data: { task: Task; mode: 'create' | 'edit' },
+    @Optional() private dialogRef: MatDialogRef<TaskFormComponent>
   ) {
     const today = new Date().toISOString().split('T')[0].replaceAll('-', '/');
 
     //définit un formulaire réutilisable avec les différentes valeurs et leurs règles de validations
     this.taskForm = this.fb.group({
       title: ['', [Validators.required]],
-      startDate: [data.task?.startDate ?? ''],
+      startDate: [''],
       endDate: [''],
       creationDate: [today, [Validators.required]],
       collaborators: [],
@@ -88,14 +79,13 @@ export class TaskFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    //  if (this.mode === 'edit' && this.task) {
-    //     this.addTaskForm.patchValue(this.task);
-    //   }
-
     this.getAllUser();
 
-    //remplit le formulaire automatiquement avec les données existantes si il y a une tâche
-    if (this.task) {
+    //remplit le formulaire automatiquement avec les données existantes si il y a une tâche et si l'injection via le MatDialog existe sinon si on est pas dans un MatDialog mais qu'il y a quand même une tâche alors on remplit le formulaire
+    if (this.data?.task) {
+      this.task = this.data.task;
+      this.taskForm.patchValue(this.task);
+    } else if (this.task) {
       this.taskForm.patchValue(this.task);
     }
 
@@ -118,7 +108,7 @@ export class TaskFormComponent implements OnInit {
         ...this.task, //récupère l'ancienne tâche (utile le mode édition)
         ...formValues, //écrase avec les nouvelles valeurs dy formulaire
 
-        id: this.task?.id ?? undefined, // attention, pas 0 ici sinon id est forcé
+        id: this.task?.id, // attention, pas 0 ici sinon id est forcé
       };
 
       this.formSubmit.emit(updatedTask); //émet la tâche au parent via @Output
@@ -126,6 +116,10 @@ export class TaskFormComponent implements OnInit {
       //ferme le dialog
       this.dialogRef.close();
     }
+  }
+
+  onClose() {
+    this.dialog.closeAll();
   }
 
   onCancel() {

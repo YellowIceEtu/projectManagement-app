@@ -73,9 +73,9 @@ export class TaskService {
     return this.http.get<Task>(`http://localhost:8080/task/get-task/${id}`);
   }
 
-  addTask(task: Task): Observable<Task> {
+  addTask(task: Task, id: string): Observable<Task> {
     return this.http.post<Task>(
-      `${this.apiUrlFromBackEnd}/task/add-task`,
+      `${this.apiUrlFromBackEnd}/task/${id}/add-task`,
       task
     );
   }

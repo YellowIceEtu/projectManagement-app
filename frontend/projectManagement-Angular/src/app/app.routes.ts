@@ -32,7 +32,7 @@ export const routes: Routes = [
   },
 
   {
-    path: 'add-task',
+    path: 'projects/:projectId/add-task',
     loadComponent() {
       return import('./task/add-task/add-task.component').then(
         (m) => m.AddTaskComponent

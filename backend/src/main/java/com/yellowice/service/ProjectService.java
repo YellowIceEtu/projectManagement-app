@@ -4,6 +4,7 @@ package com.yellowice.service;
 import com.yellowice.dao.ProjectRepository;
 import com.yellowice.dao.UserRepository;
 import com.yellowice.dto.ProjectDTO;
+import com.yellowice.dto.ProjectMembersDTO;
 import com.yellowice.dto.TaskDTO;
 import com.yellowice.dto.UserDTO;
 import com.yellowice.model.Project;
@@ -14,9 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -159,6 +158,21 @@ public class ProjectService {
         }
         List<UserDTO> usersDTO = users.stream().map(UserDTO::new).collect(Collectors.toList());
         return usersDTO;
+    }
+
+
+    /**
+     * Récupère pour un projet de l'utilisateur connecté, tous les utilisateurs appartenant au projet
+     * @param projectId 'identification du projet
+     * @return un dto contenant la liste  d'utilisateurs des projets
+     */
+    public ProjectMembersDTO getUsersFromProjectId(Long projectId){
+        ProjectDTO projectToCheck = this.getProjectId(projectId);
+        if (projectToCheck.getOwner() == null) {
+            throw new RuntimeException("pas de owner");
+        }
+        return new ProjectMembersDTO(projectToCheck.getOwner(), projectToCheck.getCollaborators());
+
     }
 
 }
