@@ -6,6 +6,8 @@ import { TaskFormComponent } from './task/task-form/task-form.component';
 import { AddTaskComponent } from './task/add-task/add-task.component';
 import { authGuard } from './auth/guard.guard';
 import { TaskProjectListComponent } from './task/task-project-list/task-project-list.component';
+import { ProjectDetailsComponent } from './project/project-details/project-details.component';
+import { MembersProjectComponent } from './project/members-project/members-project.component';
 
 export const routes: Routes = [
   // {
@@ -30,7 +32,7 @@ export const routes: Routes = [
   },
 
   {
-    path: 'add-task',
+    path: 'projects/:projectId/add-task',
     loadComponent() {
       return import('./task/add-task/add-task.component').then(
         (m) => m.AddTaskComponent
@@ -49,7 +51,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'projects',
+    path: 'projects/:id',
     loadComponent() {
       return import('./project/project-layout/project-layout.component').then(
         (m) => m.ProjectLayoutComponent
@@ -57,9 +59,18 @@ export const routes: Routes = [
     },
     canActivate: [authGuard],
     children: [
+      { path: '', redirectTo: 'details', pathMatch: 'full' },
       {
-        path: 'task/:id',
+        path: 'task',
         component: TaskProjectListComponent,
+      },
+      {
+        path: 'details',
+        component: ProjectDetailsComponent,
+      },
+      {
+        path: 'members',
+        component: MembersProjectComponent,
       },
     ],
   },

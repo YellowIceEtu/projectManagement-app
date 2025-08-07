@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Project } from '../models/project.model';
+import { User } from '../models/user.model';
+import { ProjectMembers } from '../models/project-members.model';
 
 @Injectable({
   providedIn: 'root',
@@ -14,8 +16,6 @@ export class ProjectService {
   public project$ = this.projectsSubject.asObservable();
 
   private hasFetched = false;
-
-  projectIdSignal = signal<Project | null>(null);
 
   fetchProject() {
     if (this.hasFetched) return;
@@ -35,6 +35,12 @@ export class ProjectService {
   getProjectById(id: string): Observable<Project> {
     return this.http.get<Project>(
       `${this.apiUrlFromBackend}/get-project/${id}`
+    );
+  }
+
+  getMembersFromProject(id: string): Observable<ProjectMembers> {
+    return this.http.get<ProjectMembers>(
+      `${this.apiUrlFromBackend}/${id}/get-members`
     );
   }
 }

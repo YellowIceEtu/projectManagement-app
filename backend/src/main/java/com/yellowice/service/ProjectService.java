@@ -4,7 +4,9 @@ package com.yellowice.service;
 import com.yellowice.dao.ProjectRepository;
 import com.yellowice.dao.UserRepository;
 import com.yellowice.dto.ProjectDTO;
+import com.yellowice.dto.ProjectMembersDTO;
 import com.yellowice.dto.TaskDTO;
+import com.yellowice.dto.UserDTO;
 import com.yellowice.model.Project;
 import com.yellowice.model.Task;
 import com.yellowice.model.User;
@@ -13,9 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -111,7 +111,7 @@ public class ProjectService {
      * Supprime un projet seulement par le owner
      * @param idProject le projet a supprimer
      */
-    public void deleteTaskById(Long idProject){
+    public void deleteProjectById(Long idProject){
         User actualUser = this.userService.getCurrentUser();
         Project project = this.projectRepository.findById(idProject).orElseThrow(() -> new RuntimeException("Project Not Found"));
         if(project.getOwner().equals(actualUser)){
@@ -133,6 +133,46 @@ public class ProjectService {
             return (new ProjectDTO(project));
         }
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès refusé pour ce projet");
+    }
+
+
+    /**
+     * Récupère pour chaque projet de l'utilisateur connecté, tous les utilisateurs appartenant au projet
+     * @return un dto contenant la liste  d'utilisateurs des projets
+     */
+    public List<UserDTO> getUsersFromEachProject(){
+        List<Project> projects = this.getAllProjects();
+        List<User> users = new ArrayList<>();
+        for(Project project : projects){
+            if (project.getOwner() == null) {
+                throw new RuntimeException("pas de owner");
+            }
+            users.add(project.getOwner());
+
+            for(User user : project.getCollaborators()){
+                if(!users.contains(user)) {
+                    users.add(user);
+                }
+
+            }
+        }
+        List<UserDTO> usersDTO = users.stream().map(UserDTO::new).collect(Collectors.toList());
+        return usersDTO;
+    }
+
+
+    /**
+     * Récupère pour un projet de l'utilisateur connecté, tous les utilisateurs appartenant au projet
+     * @param projectId 'identification du projet
+     * @return un dto contenant la liste  d'utilisateurs des projets
+     */
+    public ProjectMembersDTO getUsersFromProjectId(Long projectId){
+        ProjectDTO projectToCheck = this.getProjectId(projectId);
+        if (projectToCheck.getOwner() == null) {
+            throw new RuntimeException("pas de owner");
+        }
+        return new ProjectMembersDTO(projectToCheck.getOwner(), projectToCheck.getCollaborators());
+
     }
 
 }

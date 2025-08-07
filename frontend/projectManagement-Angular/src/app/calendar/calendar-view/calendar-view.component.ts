@@ -20,6 +20,7 @@ import { options } from '@fullcalendar/core/preact.js';
 import { Status } from '../../models/status.model';
 import { TaskFormComponent } from '../../task/task-form/task-form.component';
 import { Project } from '../../models/project.model';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-calendar-view',
@@ -54,10 +55,18 @@ export class CalendarViewComponent implements OnInit {
     eventsSet: this.handleEvents.bind(this),
   });
 
-  constructor(private taskService: TaskService, private dialog: MatDialog) {}
+  projectId: string = '';
+
+  constructor(
+    private taskService: TaskService,
+    private dialog: MatDialog,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     this.taskService.fetchTask();
+
+    this.projectId = this.route.snapshot.paramMap.get('projectId')!;
 
     // Et ici, tu observes les valeurs mises à jour
     this.taskService.tasks$.subscribe((tasks: Task[]) => {
@@ -117,7 +126,7 @@ export class CalendarViewComponent implements OnInit {
     });
 
     dialogRef.componentInstance.formSubmit.subscribe((createdTask: Task) => {
-      this.taskService.addTask(createdTask).subscribe({
+      this.taskService.addTask(createdTask, this.projectId).subscribe({
         next: () => {
           dialogRef.close();
           this.taskService.fetchTask(); // recharge les tâches
