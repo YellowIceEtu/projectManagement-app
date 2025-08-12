@@ -2,6 +2,7 @@ package com.yellowice.controller;
 
 import com.yellowice.dto.ProjectDTO;
 import com.yellowice.dto.ProjectMembersDTO;
+import com.yellowice.dto.TaskDTO;
 import com.yellowice.dto.UserDTO;
 import com.yellowice.model.Project;
 import com.yellowice.model.User;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/project")
@@ -75,5 +77,34 @@ public class ProjectController {
     public ResponseEntity<ProjectMembersDTO> UsersFromProjectId(@PathVariable Long projectId){
         return ResponseEntity.ok(this.projectService.getUsersFromProjectId(projectId));
     }
+
+
+    /**
+     * Appelle le service pour récupérer toutes les tâches d'un utilisateur connecté d'un projet
+     * @param projectId l'identification du projet dans lequel on récupère les tâches
+     * @return une réponse http contenant les tâches d'un utilisateur d'un projet
+     */
+    @GetMapping("{projectId}/get-tasks-project")
+    public ResponseEntity<List<TaskDTO>> getTasksFromProject(@PathVariable Long projectId){
+        List<TaskDTO> tasks = projectService.getTaskFromProjectForUser(projectId)
+                .stream()
+                .map(TaskDTO::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(tasks);
+    }
+
+
+    /**
+     * Appelle le service pour récupérer toutes les tâches d'un projet
+     * @param projectId l'identification du projet
+     * @return une réponse http contenant toutes les tâches d'un projet
+     */
+    @GetMapping("{projectId}/get-all-tasks")
+    public ResponseEntity<List<TaskDTO>> getAllTasksFromProjectId(@PathVariable Long projectId){
+        List<TaskDTO> tasks = projectService.getAllTasksFromProject(projectId);
+        return ResponseEntity.ok(tasks);
+    }
+
+
 
 }

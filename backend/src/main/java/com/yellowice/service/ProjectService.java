@@ -2,19 +2,19 @@ package com.yellowice.service;
 
 
 import com.yellowice.dao.ProjectRepository;
+import com.yellowice.dao.TaskRepository;
 import com.yellowice.dao.UserRepository;
 import com.yellowice.dto.ProjectDTO;
 import com.yellowice.dto.ProjectMembersDTO;
 import com.yellowice.dto.TaskDTO;
 import com.yellowice.dto.UserDTO;
-import com.yellowice.model.Project;
-import com.yellowice.model.Task;
-import com.yellowice.model.User;
+import com.yellowice.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,15 +25,22 @@ public class ProjectService {
     private ProjectRepository projectRepository;
 
     @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private HistoryService historyService;
+
 
     /**
      * Si un utilisateur créer un projet alors il devient le owner de celui-ci
      * Créer et sauvegarder un projet
+     * Enregistre l'action dans un historique
      * @param project Le projet a créer
      * @return le projet créé et sauvegardé dans la base de donnée
      */
@@ -50,6 +57,8 @@ public class ProjectService {
                     User userToAddForTask = this.userRepository.findByEmail(users.getEmail());
                     if (userToAddForTask == null) {
                         throw new RuntimeException("Utilisateur non trouvé avec l'email : " + userToAddForTask);
+                    } if (userToAddForTask.getId().equals(project.getOwner().getId())) {
+                        continue;
                     }
                     usersForTask.add(userToAddForTask);
                 }
@@ -58,9 +67,14 @@ public class ProjectService {
                 project.setCollaborators(null);
             }
         }
-        System.out.println("Collaborators to save: " + project.getCollaborators());
-        return this.projectRepository.save(project);
 
+        Project savedProject = this.projectRepository.save(project);
+
+        historyService.addProjectAndTaskToHistory(project.getName(), project.getId(), null,
+                EnumActions.CREATE,
+                this.userService.getCurrentUser().getUsername() + " à créé le projet '" + project.getName() +"'");
+
+        return savedProject;
     }
 
 
@@ -109,13 +123,13 @@ public class ProjectService {
 
     /**
      * Supprime un projet seulement par le owner
-     * @param idProject le projet a supprimer
+     * @param projectId le projet a supprimer
      */
-    public void deleteProjectById(Long idProject){
+    public void deleteProjectById(Long projectId){
         User actualUser = this.userService.getCurrentUser();
-        Project project = this.projectRepository.findById(idProject).orElseThrow(() -> new RuntimeException("Project Not Found"));
+        Project project = this.projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project Not Found"));
         if(project.getOwner().equals(actualUser)){
-            this.projectRepository.deleteById(idProject);
+            this.projectRepository.deleteById(projectId);
         }
 
 
@@ -123,12 +137,12 @@ public class ProjectService {
 
     /**
      * Récupère un projet en fonction de l'id
-     * @param idProject l'identification du projet à récupérer
+     * @param projectId l'identification du projet à récupérer
      * @return un dto contenant le projet récupéré
      */
-    public ProjectDTO getProjectId(Long idProject){
+    public ProjectDTO getProjectId(Long projectId){
         User actualUser = this.userService.getCurrentUser();
-        Project project = this.projectRepository.findById(idProject).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Projet non trouvé"));
+        Project project = this.projectRepository.findById(projectId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Projet non trouvé"));
         if(project.getOwner().equals(actualUser) ||project.getCollaborators().contains(actualUser)){
             return (new ProjectDTO(project));
         }
@@ -163,7 +177,7 @@ public class ProjectService {
 
     /**
      * Récupère pour un projet de l'utilisateur connecté, tous les utilisateurs appartenant au projet
-     * @param projectId 'identification du projet
+     * @param projectId l'identification du projet
      * @return un dto contenant la liste  d'utilisateurs des projets
      */
     public ProjectMembersDTO getUsersFromProjectId(Long projectId){
@@ -174,5 +188,46 @@ public class ProjectService {
         return new ProjectMembersDTO(projectToCheck.getOwner(), projectToCheck.getCollaborators());
 
     }
+
+    /**
+     * Récupère toutes les tâches appartenant à l'utilisateur connecté d'un projet en fonction de l'id
+     * @param projectId l'identification du projet
+     * @return la liste des tâches d'un utilisateur connecté du projet
+     */
+    public List<Task> getTaskFromProjectForUser(Long projectId){
+        User actualUser = this.userService.getCurrentUser();
+        List<Task> findTask = this.taskRepository.findByProjectId(projectId);
+        List<Task> filteredTasks = new ArrayList<>();
+
+        LocalDate actualDate = LocalDate.now();
+
+        for(Task task : findTask){
+            if(task.getCollaborators().contains(actualUser) ||task.getProject().getOwner().equals(actualUser)){
+                if(task.getStatus() == null || task.getStatus() != EnumStatus.TERMINEE && task.getEndDate().isBefore(actualDate)){
+                    task.setStatus(EnumStatus.EN_RETARD);
+                }
+                filteredTasks.add(task);
+            }
+
+        }
+        return filteredTasks;
+
+    }
+
+
+    /**
+     * Récupère toutes les tâches d'un projet en fonction de l'id
+     * @param projectId l'identification du projet à récupérer
+     * @return un dto contenant la liste des tâches
+     */
+    public List<TaskDTO> getAllTasksFromProject(Long projectId){
+        List<Task> findTask = this.taskRepository.findByProjectId(projectId);
+        List<TaskDTO> tasks =  findTask.stream().map(TaskDTO::new ).collect(Collectors.toList());
+
+        return tasks;
+
+    }
+
+
 
 }

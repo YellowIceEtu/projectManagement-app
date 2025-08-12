@@ -18,11 +18,17 @@ export class ProjectDetailsComponent implements OnInit {
 
   selectedProject: Project | null = null;
 
+  taskNumber: number = 0;
+  taskFinishedNumber: number = 0;
+  membersNumber: number = 0;
+
   ngOnInit(): void {
     this.route.parent?.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.getProjectById(id);
+        this.getAllTasksFromProject(id);
+        this.getMembersFromProjectId(id);
       }
     });
   }
@@ -33,6 +39,28 @@ export class ProjectDetailsComponent implements OnInit {
         // this.projectService.projectIdSignal.set(result);
         this.selectedProject = result;
         console.log('test ?? details ', result);
+      },
+      error: (error) => {
+        console.error('Erreur:', error);
+      },
+    });
+  }
+
+  getAllTasksFromProject(projectId: string) {
+    this.projectService.getAllTasksFromProject(projectId).subscribe({
+      next: (result) => {
+        this.taskNumber = result.length;
+        this.taskFinishedNumber = result.filter(
+          (task) => task.status == 'TERMINEE'
+        ).length;
+      },
+    });
+  }
+
+  getMembersFromProjectId(id: string) {
+    this.projectService.getMembersFromProject(id).subscribe({
+      next: (result) => {
+        this.membersNumber = result.collaborators.length + 1;
       },
       error: (error) => {
         console.error('Erreur:', error);

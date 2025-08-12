@@ -40,7 +40,7 @@
 
         <div class="w-full gap-2">
 
-            <h1 class="gap-2 font-bold text-3xl mt-8">
+            <h1 class="gap-2 font-bold text-4xl mt-8 mb-4">
 
                 {{selectedProject?.name}}  
             </h1>
@@ -50,10 +50,10 @@
             <div class="flex gap-8 border-b border-gray-300 mb-6 mt-6 w-[90%]">
 
                 <a [routerLink]="['details']"  routerLinkActive="border-b-4 border-gray-800 font-semibold text-gray-800"
-                class="pb-2"
+                class="pb-2 text-xl"
                 > Overview </a>
-                <a [routerLink]="['task']" routerLinkActive="border-b-4 border-gray-800 font-semibold text-gray-800" class="pb-2"> Task </a>
-                <a [routerLink]="['members']" class="pb-2"> Members </a>
+                <a [routerLink]="['task']" routerLinkActive="border-b-4 border-gray-800 font-semibold text-gray-800" class="pb-2 text-xl"> Task </a>
+                <a [routerLink]="['members']" routerLinkActive="border-b-4 border-gray-800 font-semibold text-gray-800" class="pb-2 text-xl"> Members </a>
     
             </div>
      

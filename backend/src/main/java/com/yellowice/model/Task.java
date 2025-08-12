@@ -7,7 +7,6 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -49,12 +48,7 @@ public class Task {
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("project-tasks")
     private Project project;
 
-//
-//    @ManyToOne
-//    @JoinColumn(name = "user_id")
-//    @JsonBackReference
-//    private User assignedUser;
 }

@@ -52,9 +52,8 @@ public class Project {
 
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonManagedReference("project-tasks")
     private List<Task> tasks;
-
 
 
 

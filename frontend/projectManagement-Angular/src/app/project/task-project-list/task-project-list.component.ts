@@ -1,14 +1,14 @@
 import { Component, computed, effect, OnInit, signal } from '@angular/core';
-import { ProjectService } from '../../project/project.service';
-import { ActivatedRoute } from '@angular/router';
+import { ProjectService } from '../project.service';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Project } from '../../models/project.model';
 import { CommonModule, NgFor } from '@angular/common';
 import { Task } from '../../models/task.model';
-import { TaskService } from '../task.service';
+import { TaskService } from '../../task/task.service';
 import { Status, statusColors, statusLabels } from '../../models/status.model';
-import { TaskFormComponent } from '../task-form/task-form.component';
+import { TaskFormComponent } from '../../task/task-form/task-form.component';
 import { MatDialog } from '@angular/material/dialog';
-import { TaskDetailsDialogComponent } from '../task-details-dialog/task-details-dialog.component';
+import { TaskDetailsDialogComponent } from '../../task/task-details-dialog/task-details-dialog.component';
 
 @Component({
   selector: 'app-task-project-list',
@@ -32,7 +32,8 @@ export class TaskProjectListComponent {
     public projectService: ProjectService,
     private route: ActivatedRoute,
     public taskService: TaskService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private router: Router
   ) {
     this.route.parent?.paramMap.subscribe((params) => {
       const id = params.get('id');
@@ -64,7 +65,6 @@ export class TaskProjectListComponent {
     this.projectService.getProjectById(id).subscribe({
       next: (result) => {
         // this.projectService.projectIdSignal.set(result);
-        console.log('test ?? ', result);
       },
       error: (error) => {
         console.error('Erreur:', error);
@@ -73,11 +73,12 @@ export class TaskProjectListComponent {
   }
 
   loadTask(id: string) {
-    this.taskService.fetchTaskByProjectFromUser(id); // charge les données
+    this.projectService.fetchTaskByProjectFromUser(id); // charge les données
 
     //s'abonne a getTasks pour récupérer toutes les tâches
-    this.taskService.getTasksProjectUser().subscribe((tasks) => {
+    this.projectService.getTasksProjectUser().subscribe((tasks) => {
       // Utilise un map (pour produire un nouveau tableau avec des champs modifiés) sur toutes les tâches du projet pour formatter la date de création
+      console.log('task ?? ', tasks);
       this.taskByProject = tasks.map((task) => ({
         ...task,
         creationDate: this.formatDateToFrench(task.creationDate),
@@ -97,6 +98,15 @@ export class TaskProjectListComponent {
           width: '800px',
         });
       },
+    });
+  }
+
+  redirectToAddTask() {
+    this.route.parent?.paramMap.subscribe((params) => {
+      const projectId = params.get('id');
+      if (projectId) {
+        this.router.navigate([`/projects/${projectId}/add-task`]);
+      }
     });
   }
 }

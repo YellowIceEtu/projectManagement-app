@@ -5,7 +5,7 @@ import { CalendarViewComponent } from './calendar/calendar-view/calendar-view.co
 import { TaskFormComponent } from './task/task-form/task-form.component';
 import { AddTaskComponent } from './task/add-task/add-task.component';
 import { authGuard } from './auth/guard.guard';
-import { TaskProjectListComponent } from './task/task-project-list/task-project-list.component';
+import { TaskProjectListComponent } from './project/task-project-list/task-project-list.component';
 import { ProjectDetailsComponent } from './project/project-details/project-details.component';
 import { MembersProjectComponent } from './project/members-project/members-project.component';
 

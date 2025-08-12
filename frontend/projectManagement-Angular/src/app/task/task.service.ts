@@ -12,9 +12,6 @@ export class TaskService {
   tasksSubject = new BehaviorSubject<Task[]>([]);
   public tasks$ = this.tasksSubject.asObservable();
 
-  tasksProjectUserSubject = new BehaviorSubject<Task[]>([]);
-  public tasksProjectUser$ = this.tasksProjectUserSubject.asObservable();
-
   constructor(private http: HttpClient) {}
 
   //METHODE qui récupère les taches sans centraliser les données comme la méthode d'en bas où le service s'abonne directement aux flux de données (Observable) qui va permettre aux autres classes de juste de s'abooner a la propriété task$ qui est le flux de donnée public.
@@ -50,24 +47,6 @@ export class TaskService {
   //     `${this.apiUrlFromBackEnd}/task/${projectId}/get-tasks-project`
   //   );
   // }
-
-  fetchTaskByProjectFromUser(projectId: string) {
-    this.http
-      .get<Task[]>(
-        `${this.apiUrlFromBackEnd}/task/${projectId}/get-tasks-project`
-      )
-      .subscribe({
-        next: (tasks) => {
-          this.tasksProjectUserSubject.next(tasks), (this.hasFetched = true);
-        },
-        error: (err) =>
-          console.error('Erreur chargement des tâches du projet', err),
-      });
-  }
-
-  getTasksProjectUser(): Observable<Task[]> {
-    return this.tasksProjectUser$;
-  }
 
   getTaskById(id: string): Observable<Task> {
     return this.http.get<Task>(`http://localhost:8080/task/get-task/${id}`);
