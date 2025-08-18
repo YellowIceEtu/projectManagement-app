@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProjectService } from '../project.service';
 import { Project } from '../../models/project.model';
 import { CommonModule } from '@angular/common';
+import { History } from '../../models/history.model';
 
 @Component({
   selector: 'app-project-details',
@@ -18,11 +19,20 @@ export class ProjectDetailsComponent implements OnInit {
 
   selectedProject: Project | null = null;
 
+  taskNumber: number = 0;
+  taskFinishedNumber: number = 0;
+  membersNumber: number = 0;
+
+  projectHistory: History[] = [];
+
   ngOnInit(): void {
     this.route.parent?.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.getProjectById(id);
+        this.getAllTasksFromProject(id);
+        this.getMembersFromProjectId(id);
+        this.getHistory(id);
       }
     });
   }
@@ -38,6 +48,53 @@ export class ProjectDetailsComponent implements OnInit {
         console.error('Erreur:', error);
       },
     });
+  }
+
+  getAllTasksFromProject(projectId: string) {
+    this.projectService.getAllTasksFromProject(projectId).subscribe({
+      next: (result) => {
+        this.taskNumber = result.length;
+        this.taskFinishedNumber = result.filter(
+          (task) => task.status == 'TERMINEE'
+        ).length;
+      },
+    });
+  }
+
+  getMembersFromProjectId(id: string) {
+    this.projectService.getMembersFromProject(id).subscribe({
+      next: (result) => {
+        this.membersNumber = result.collaborators.length + 1;
+      },
+      error: (error) => {
+        console.error('Erreur:', error);
+      },
+    });
+  }
+
+  getHistory(projectId: string) {
+    this.projectService.getHistoryFromProjectId(projectId).subscribe({
+      next: (result) => {
+        this.projectHistory = result;
+        console.log('historique : ', this.projectHistory);
+      },
+    });
+  }
+
+  calculateTime(date: string): string {
+    const now = new Date();
+    const dateToCaulculate = new Date(date);
+    const diffMilliseconds = now.getTime() - dateToCaulculate.getTime();
+    const daysDiff = Math.floor(diffMilliseconds / (1000 * 60 * 60 * 24));
+
+    if (daysDiff === 0) {
+      return 'Today';
+    } else if (daysDiff < 7) {
+      return `${daysDiff} days${daysDiff > 1 ? 's' : ''} ago`;
+    } else {
+      const week = Math.floor(daysDiff / 7);
+      return `${week} week${daysDiff > 1 ? 's' : ''} ago`;
+    }
   }
 }
 

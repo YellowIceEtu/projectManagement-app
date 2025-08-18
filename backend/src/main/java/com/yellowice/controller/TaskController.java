@@ -68,19 +68,6 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    /**
-     * Appelle le service pour récupérer toutes les tâches d'un projet
-     * @param projectId l'identification du projet dans lequel on récupère les tâches
-     * @return une réponse http contenant les tâches d'un projet
-     */
-    @GetMapping("{projectId}/get-tasks-project")
-    public ResponseEntity<List<TaskDTO>> getTasksFromProject(@PathVariable Long projectId){
-        List<TaskDTO> tasks = taskService.getTaskFromProjectForUser(projectId)
-                .stream()
-                .map(TaskDTO::new)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(tasks);
-    }
 
     /**
      * Appelle le service pour récupèrer les informations d'une tâche grâce à son id

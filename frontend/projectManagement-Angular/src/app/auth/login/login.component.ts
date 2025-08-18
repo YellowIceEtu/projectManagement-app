@@ -9,6 +9,7 @@ import {
   Validators,
   FormBuilder,
 } from '@angular/forms';
+import { ProjectService } from '../../project/project.service';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +25,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private projectService: ProjectService
   ) {
     //définit un formulaire de connexion avec 2 champs (email et password) qui ont une valeur initiale vide et qui ont des règles de validations
     this.loginForm = this.fb.group({
@@ -37,6 +39,8 @@ export class LoginComponent implements OnInit {
       console.log('auhuidauda, ', this.authService.getToken());
       this.router.navigate(['/login']);
     }
+
+    this.projectService.fetchProject();
   }
 
   togglePasswordVisibility(): void {
@@ -52,7 +56,7 @@ export class LoginComponent implements OnInit {
         .subscribe({
           next: () => {
             console.log('Login réussi');
-            this.router.navigate(['/projects/1']); // Redirection après succès
+            this.router.navigate(['/dashboard']); // Redirection après succès
           },
           error: (err) => {
             if (err.status == 401) {

@@ -26,6 +26,9 @@ import {
 } from '@angular/material/dialog';
 import { UserService } from '../../users/user.service';
 import { User } from '../../models/user.model';
+import { Project } from '../../models/project.model';
+import { ProjectService } from '../../project/project.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-task-form',
@@ -49,19 +52,26 @@ export class TaskFormComponent implements OnInit {
 
   taskForm: FormGroup;
 
+  getProjectById: Project | null = null;
+
   //permet de récupérer tous les status sauf celui en retard
   statusLabelsMap = statusLabels;
   statusOptions = Object.values(Status).filter(
     (status) => status !== Status.EN_RETARD
   );
 
+  projectList: Project[] = [];
+
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
     private dialog: MatDialog,
+    private projectService: ProjectService,
+    private route: ActivatedRoute,
+    private router: Router,
     @Optional()
     @Inject(MAT_DIALOG_DATA)
-    public data: { task: Task; mode: 'create' | 'edit' },
+    public data: { task: Task; mode: 'create' | 'edit'; fixedProject: Project },
     @Optional() private dialogRef: MatDialogRef<TaskFormComponent>
   ) {
     const today = new Date().toISOString().split('T')[0].replaceAll('-', '/');
@@ -75,11 +85,25 @@ export class TaskFormComponent implements OnInit {
       collaborators: [],
       description: ['', [Validators.required]],
       status: ['EN_COURS', [Validators.required]],
+      project: [null, [Validators.required]],
     });
   }
 
   ngOnInit(): void {
     this.getAllUser();
+
+    this.projectService.getProjects().subscribe((projects) => {
+      this.projectList = projects;
+    });
+
+    const projectId = Number(this.route.snapshot.paramMap.get('projectId'));
+    if (projectId) {
+      const project = this.projectList.find((p) => p.id === projectId);
+      if (project) {
+        this.getProjectById = project;
+        this.taskForm.patchValue({ project: project.id });
+      }
+    }
 
     //remplit le formulaire automatiquement avec les données existantes si il y a une tâche et si l'injection via le MatDialog existe sinon si on est pas dans un MatDialog mais qu'il y a quand même une tâche alors on remplit le formulaire
     if (this.data?.task) {
@@ -104,17 +128,34 @@ export class TaskFormComponent implements OnInit {
 
       //créer une tâche complète
       const formValues = this.taskForm.value;
+
+      // const selectedProject = this.fixedProject
+      //   ? this.fixedProject
+      //   : this.projectList.find((p) => p.id === formValues.project);
+
+      const selectedProject = this.projectList.find(
+        (p) => p.id === formValues.project
+      );
+
+      console.log('icicicicici ; ', selectedProject);
+
+      if (!selectedProject) {
+        console.error('Projet introuvable');
+        return;
+      }
       const updatedTask: Task = {
         ...this.task, //récupère l'ancienne tâche (utile le mode édition)
         ...formValues, //écrase avec les nouvelles valeurs dy formulaire
 
         id: this.task?.id, // attention, pas 0 ici sinon id est forcé
+        project: selectedProject,
       };
 
       this.formSubmit.emit(updatedTask); //émet la tâche au parent via @Output
 
       //ferme le dialog
-      this.dialogRef.close();
+      if (this.dialogRef) this.dialogRef.close();
+      else this.router.navigate(['/projects', selectedProject.id, 'task']);
     }
   }
 

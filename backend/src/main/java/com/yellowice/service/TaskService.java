@@ -4,10 +4,8 @@ import com.yellowice.dao.ProjectRepository;
 import com.yellowice.dao.TaskRepository;
 import com.yellowice.dao.UserRepository;
 import com.yellowice.dto.TaskDTO;
-import com.yellowice.model.EnumStatus;
-import com.yellowice.model.Project;
-import com.yellowice.model.Task;
-import com.yellowice.model.User;
+import com.yellowice.dto.UserDTO;
+import com.yellowice.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -31,9 +30,14 @@ public class TaskService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    HistoryService historyService;
+
     /**
-     * Créé et sauvegarde une tâche avec toutes les informations nécessaires (collaborateurs si fournis)
+     * Créé et sauvegarde dans un projet, une tâche avec toutes les informations nécessaires (collaborateurs si fournis)
+     * Ajoute l'action dans un historique du projet dans laquelle elle appartient
      * @param task Tâche a créer
+     * @param projectId l'identification du projet auquel la tâche est ajoutée
      * @return la tâche créée et sauvegarder dans la base de donnée
      */
 
@@ -47,6 +51,8 @@ public class TaskService {
                 User userToAddForTask = this.userRepository.findByEmail(users.getEmail());
                 if (userToAddForTask == null) {
                     throw new RuntimeException("Utilisateur non trouvé avec l'email : " + userToAddForTask);
+                } if (userToAddForTask.getId().equals(project.getOwner().getId())) {
+                    continue;
                 }
                 usersForTask.add(userToAddForTask);
             }
@@ -54,30 +60,50 @@ public class TaskService {
             Set<User> updateCollaboratorsProject = new HashSet<>(project.getCollaborators());
             updateCollaboratorsProject.addAll(task.getCollaborators());
             project.setCollaborators(new ArrayList<>(updateCollaboratorsProject));
+
+//            historyService.addToHistory(
+//                    EnumActions.ADD,
+//                    this.userService.getCurrentUser().getUsername()
+//                            + " à ajouté : " + project.getCollaborators()
+//                            + "au projet");
         } else {
             task.setCollaborators(null);
         }
 
+        addCollaboratorsToProject(project, task.getCollaborators());
+
         task.setProject(project);
 
 
-        return this.taskRepository.save(task);
+
+        Task savedTask = this.taskRepository.save(task);
+        historyService.addProjectAndTaskToHistory(project.getName(), project.getId(),task.getTitle(),
+                EnumActions.CREATE,
+                this.userService.getCurrentUser().getUsername() + " à créé la tâche '" + task.getTitle() +"'");
+
+        return savedTask;
     }
 
 
     /**
      * Supprime une tâche par son id
+     * et enregistre cette action dans un historique
      * @param id L'identifiant de la tâche à supprimer
      *
      */
     public void deleteTaskById(Long id) {
         Task task = this.taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task Not Found"));
+        Project project = task.getProject();
+        historyService.addProjectAndTaskToHistory(project.getName(), project.getId(), task.getTitle(),
+                EnumActions.DELETE,
+                this.userService.getCurrentUser().getUsername() + " à supprimé la tâche '" + task.getTitle() +"'");
         this.taskRepository.deleteById(task.getId());
     }
 
 
     /**
      * Modifie toutes les informations d'une tâche
+     * et enregistre cette action dans un historique
      * @param updatedTask la tâche modifiée avec les nouvelles informations
      * @param taskId l'identification de la tâche à modifier
      * @return la tâche mise à jour
@@ -86,9 +112,9 @@ public class TaskService {
 
         Task findTask = this.taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task Not Found"));
-        List<User> findUsersInTask = findTask.getCollaborators();
         List<User> userToAssign = new ArrayList<>();
-        System.out.println("SIZE ??? " + updatedTask.getCollaborators().size());
+
+        Project project = findTask.getProject();
 
         //Methode for normal
 //        for (int i = 0; i < updatedTask.getCollaborators().size(); i++) {
@@ -114,6 +140,12 @@ public class TaskService {
         findTask.setCreationDate(updatedTask.getCreationDate());
         findTask.setStartDate(updatedTask.getStartDate());
         findTask.setStatus(updatedTask.getStatus());
+
+        addCollaboratorsToProject(project, findTask.getCollaborators());
+
+        historyService.addProjectAndTaskToHistory(project.getName(), project.getId(), findTask.getTitle(),
+                EnumActions.UPDATE,
+                this.userService.getCurrentUser().getUsername() + " à modifié la tâche '" + findTask.getTitle() +"'");
 
         return this.taskRepository.save(findTask);
 
@@ -155,7 +187,7 @@ public class TaskService {
         LocalDate actualDate = LocalDate.now();
 
         for(Task task : findTask){
-            if(task.getCollaborators().contains(actualUser)){
+            if(task.getCollaborators().contains(actualUser) || task.getProject().getOwner().equals(actualUser)){
                 if(task.getStatus() == null || task.getStatus() != EnumStatus.TERMINEE && task.getEndDate().isBefore(actualDate)){
                     task.setStatus(EnumStatus.EN_RETARD);
                 }
@@ -167,30 +199,7 @@ public class TaskService {
     }
 
 
-    /**
-     * Récupère toutes les tâches d'un projet en fonction de l'id
-     * @param projectId l'identification du projet
-     * @return la liste des tâches d'un projet
-     */
-    public List<Task> getTaskFromProjectForUser(Long projectId){
-        User actualUser = this.userService.getCurrentUser();
-        List<Task> findTask = this.taskRepository.findByProjectId(projectId);
-        List<Task> filteredTasks = new ArrayList<>();
 
-        LocalDate actualDate = LocalDate.now();
-
-        for(Task task : findTask){
-            if(task.getCollaborators().contains(actualUser)){
-                if(task.getStatus() == null || task.getStatus() != EnumStatus.TERMINEE && task.getEndDate().isBefore(actualDate)){
-                    task.setStatus(EnumStatus.EN_RETARD);
-                }
-                filteredTasks.add(task);
-            }
-
-        }
-        return filteredTasks;
-
-    }
 
     /**
      * Compte le nombre de tâches avec le statut "en retard" appartenant à l'utilisateur connecté
@@ -231,6 +240,38 @@ public class TaskService {
         }
         return upcomingTask;
     }
+
+//    public void addCollaboratorsToProject(Project project, List<UserDTO> collaborators){
+//        Set<UserDTO> updateUserList = new HashSet<>(project.getCollaborators().stream().map(UserDTO::new).collect(Collectors.toSet());
+//
+//        if(!collaborators.isEmpty() && collaborators != null) {
+//            for (UserDTO user : collaborators) {
+//                if(!user.getId().equals(project.getOwner().getId())){
+//                    updateUserList.add(user);
+//                }
+//            }
+//
+//        }
+//        project.setCollaborators(updateUserList);
+//
+//    }
+
+
+    public void addCollaboratorsToProject(Project project, List<User> collaborators){
+        Set<User> updateUserList = new HashSet<>(project.getCollaborators());
+
+        if(!collaborators.isEmpty() && collaborators != null) {
+            for (User user : collaborators) {
+                if(!user.getId().equals(project.getOwner().getId())){
+                    updateUserList.add(user);
+                }
+            }
+
+        }
+        project.setCollaborators(new ArrayList<>(updateUserList));
+
+    }
+
 
 
 }

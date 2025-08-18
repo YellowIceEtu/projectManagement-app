@@ -15,6 +15,7 @@ public class ProjectDTO {
     private Long id;
     private String name;
     private String description;
+    private LocalDate creationDate;
     private LocalDate startDate;
     private LocalDate endDate;
     private UserDTO owner;
@@ -29,6 +30,7 @@ public class ProjectDTO {
         this.startDate = project.getStartDate();
         this.endDate = project.getEndDate();
         this.status = project.getStatus();
+        this.creationDate = project.getCreationDate();
         this.collaborators = project.getCollaborators()
                 .stream()
                 .map(UserDTO::new)
