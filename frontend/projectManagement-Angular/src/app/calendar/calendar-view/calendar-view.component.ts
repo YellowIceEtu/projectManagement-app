@@ -35,6 +35,14 @@ export class CalendarViewComponent implements OnInit {
   currentEvents = signal<EventApi[]>([]);
   project!: Project;
 
+  PROJECT_COLORS = [
+    '#F87171', // rouge
+    '#60A5FA', // bleu
+    '#34D399', // vert
+    '#FBBF24', // jaune
+    '#A78BFA', // violet
+  ];
+
   calendarOptions = signal<CalendarOptions>({
     plugins: [interactionPlugin, dayGridPlugin, timeGridPlugin, listPlugin],
     headerToolbar: {
@@ -76,6 +84,10 @@ export class CalendarViewComponent implements OnInit {
         start: task.startDate,
         end: task.endDate,
         collaborators: task.collaborators,
+
+        backgroundColor: task.project
+          ? this.getColors(task.project.id ?? 0)
+          : '#9ca3af',
         extendedProps: {
           fullTask: task, // stocke toute la tâche ici
         },
@@ -114,7 +126,7 @@ export class CalendarViewComponent implements OnInit {
       creationDate: new Date().toISOString().split('T')[0], // formater ici
       status: Status.EN_COURS,
       collaborators: [],
-      project: this.project,
+      project: {} as Project,
     };
 
     const dialogRef = this.dialog.open(TaskFormComponent, {
@@ -126,7 +138,9 @@ export class CalendarViewComponent implements OnInit {
     });
 
     dialogRef.componentInstance.formSubmit.subscribe((createdTask: Task) => {
-      this.taskService.addTask(createdTask, this.projectId).subscribe({
+      const taskProjectId = String(createdTask.project.id);
+      console.log('iiaojdioajad ', createdTask.project.id);
+      this.taskService.addTask(createdTask, taskProjectId).subscribe({
         next: () => {
           dialogRef.close();
           this.taskService.fetchTask(); // recharge les tâches
@@ -150,5 +164,10 @@ export class CalendarViewComponent implements OnInit {
 
   handleEvents(events: EventApi[]) {
     this.currentEvents.set(events);
+  }
+
+  getColors(projectId: number): string {
+    const indexColor = projectId % this.PROJECT_COLORS.length;
+    return this.PROJECT_COLORS[indexColor];
   }
 }

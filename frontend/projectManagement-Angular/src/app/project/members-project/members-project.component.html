@@ -1,33 +1,25 @@
-<div w-screen>
+<div class="w-full min-h-screen p-6">
 
-    <h1 class="font-bold text-2xl mt-2 mb-15">Team Members</h1>
+    <h1 class="font-bold text-2xl mb-8">Team Members</h1>
 
-    <div class="">
-        <h1 class="font-bold text-xl">Owner</h1>
+    <div class="grid gap-6 grid-cols-1 md:grid-cols-3">
 
-        <div class="mt-3 mb-6 gap-4">
 
-            <img src="utilisateur.png" class="w-[11%]" />
-        <p class="">{{ ownerMember?.username }}</p>
-        <p class="text-gray-600 text-sm">{{ ownerMember?.email }}</p>
-    </div>
-    </div>
-
-    <div class="mt-6">
-        <h1 class="font-bold text-xl">Collaborators</h1>
-    
-        <div  class="grid grid-cols-1 md:grid-cols-4 gap-2 mt-3"> 
-
-    <div *ngFor="let entry of collaboratorsMember ">
-
-        <div class="flex flex-col items-center text-center">
-            <img src="utilisateur.png" class="w-[45%] "/>
-            <p class=" flex justify-center items-center text-center"> {{ entry.username }}<p>
-            <p class="text-gray-600 text-sm"> {{ entry.email }}</p>
+        <div class="bg-white rounded-xl shadow-md p-6 flex flex-col items-center">
+            <img src="utilisateur.png" class="w-20 h-20 rounded-full border-2 border-gray-200 object-cover" />
+            <h2 class="mt-4 font-semibold text-lg">{{ ownerMember?.username }}</h2>
+            <p class="text-gray-500 text-sm">{{ ownerMember?.email }}</p>
+            <span class="mt-2 text-xs px-3 py-1 rounded-full bg-blue-100 text-blue-600">Owner</span>
         </div>
-    
-    </div>
-</div>
 
-</div>
+        <div *ngFor="let entry of collaboratorsMember"
+            class="bg-white rounded-xl shadow-md p-6 flex flex-col items-center">
+            <img src="utilisateur.png" class="w-20 h-20 rounded-full border-2 border-gray-200 object-cover" />
+            <h2 class="mt-4 font-semibold text-lg">{{ entry.username }}</h2>
+            <p class="text-gray-500 text-sm">{{ entry.email }}</p>
+            <span class="mt-2 text-xs px-3 py-1 rounded-full bg-green-100 text-green-600">Collaborator</span>
+        </div>
+
+    </div>
+
 </div>

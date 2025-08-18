@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProjectService } from '../project.service';
 import { Project } from '../../models/project.model';
 import { CommonModule } from '@angular/common';
+import { History } from '../../models/history.model';
 
 @Component({
   selector: 'app-project-details',
@@ -22,6 +23,8 @@ export class ProjectDetailsComponent implements OnInit {
   taskFinishedNumber: number = 0;
   membersNumber: number = 0;
 
+  projectHistory: History[] = [];
+
   ngOnInit(): void {
     this.route.parent?.paramMap.subscribe((params) => {
       const id = params.get('id');
@@ -29,6 +32,7 @@ export class ProjectDetailsComponent implements OnInit {
         this.getProjectById(id);
         this.getAllTasksFromProject(id);
         this.getMembersFromProjectId(id);
+        this.getHistory(id);
       }
     });
   }
@@ -66,6 +70,31 @@ export class ProjectDetailsComponent implements OnInit {
         console.error('Erreur:', error);
       },
     });
+  }
+
+  getHistory(projectId: string) {
+    this.projectService.getHistoryFromProjectId(projectId).subscribe({
+      next: (result) => {
+        this.projectHistory = result;
+        console.log('historique : ', this.projectHistory);
+      },
+    });
+  }
+
+  calculateTime(date: string): string {
+    const now = new Date();
+    const dateToCaulculate = new Date(date);
+    const diffMilliseconds = now.getTime() - dateToCaulculate.getTime();
+    const daysDiff = Math.floor(diffMilliseconds / (1000 * 60 * 60 * 24));
+
+    if (daysDiff === 0) {
+      return 'Today';
+    } else if (daysDiff < 7) {
+      return `${daysDiff} days${daysDiff > 1 ? 's' : ''} ago`;
+    } else {
+      const week = Math.floor(daysDiff / 7);
+      return `${week} week${daysDiff > 1 ? 's' : ''} ago`;
+    }
   }
 }
 

@@ -106,5 +106,11 @@ public class ProjectController {
     }
 
 
+    @GetMapping("/searchProject")
+    public ResponseEntity<List<ProjectDTO>> searchProjectByNameController(@RequestParam(name = "name") String projectName){
+        List<ProjectDTO> project = projectService.searchProjectByName(projectName);
+        return ResponseEntity.ok(project);
+    }
+
 
 }

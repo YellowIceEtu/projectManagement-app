@@ -1,20 +1,30 @@
 <div class=" mx-auto ">
   <form class="bg-white shadow-xl rounded-2xl p-6 border border-gray-100 space-y-4"  [formGroup]="taskForm" (ngSubmit)="onSubmit()" >
 
-    <div class="flex">
-    <h2 class="text-xl font-semibold text-gray-800 mb-2" >{{ mode === 'edit' ? 'Mettre à jour la tâche' : 'Créer une tâche' }}</h2>
+    <div class="flex flex-col">
+      <div class="flex items-center">
 
-    <button type="button" (click)="onClose()" class="text-gray-500 hover:text-red-600 ml-auto">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-        class="w-6 h-6">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-      </svg>
-      </button>
+<h2 class="text-xl font-semibold text-gray-800 mb-2">{{ mode === 'edit' ? 'Update Task' : 'Create Task' }}</h2>
+
+<button type="button" (click)="onClose()" class="text-gray-500 hover:text-red-600 ml-auto">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+    class="w-6 h-6">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+  </svg>
+</button>
+      </div>
+    
+
+<div *ngIf="getProjectById; else selectProject">
+  <p class=" text-gray-900 italic">For [{{getProjectById.name}}]</p>
+</div>
+
+    
     
     </div>
 
     <div>
-      <label for="title" class="block text-sm font-medium text-gray-700">Titre</label>
+      <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
       <input type="text" id="title" name="title"
              class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
              placeholder="Titre de la tâche" formControlName="title" required  />
@@ -30,12 +40,12 @@
 
     <div class="grid grid-cols-2 gap-4">
       <div>
-        <label for="startDate" class="block text-sm font-medium text-gray-700">Date de début</label>
+        <label for="startDate" class="block text-sm font-medium text-gray-700">Start Date</label>
         <input type="date" id="startDate" name="startDate" formControlName="startDate" required 
                class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" />
       </div>
       <div>
-        <label for="endDate" class="block text-sm font-medium text-gray-700">Date de fin</label>
+        <label for="endDate" class="block text-sm font-medium text-gray-700">Due date</label>
         <input type="date" id="endDate" name="endDate" formControlName="endDate" required 
                class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" />
       </div>
@@ -43,21 +53,36 @@
 
 
     <div>
-      <label for="status" class="block text-sm font-medium text-gray-700">Statut</label>
+      <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
       <select id="status" name="status" formControlName="status" required 
               class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-              <option selected>Choisis un statut</option>
+              <option selected>Choose a status</option>
        <option *ngFor="let s of statusOptions" [value]="s">
     {{  statusLabelsMap[s] }}
   </option>
       </select>
     </div>
 
+
+
+<ng-template #selectProject>
+        <div>
+          <label for="project" class="block text-sm font-medium text-gray-700">Project</label>
+          <select id="project" name="projectId" formControlName="project" required
+            class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            <option selected>Choose a project</option>
+            <option *ngFor="let p of projectList" [ngValue]="p.id">
+              {{ p.name }}
+            </option>
+          </select>
+        </div>
+        </ng-template>
+
       <div>
       <label for="collaborators" class="block text-sm font-medium text-gray-700">Collaborateurs :</label>
       <select id="collaborators" name="collaborators" formControlName="collaborators" multiple
               class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-              <option selected>Choisis des collaborateurs</option>
+              <option selected>Choose collaborators</option>
        <option *ngFor="let collaborator of userList" [ngValue]="collaborator">
     {{  collaborator.email }}
   </option>
@@ -73,7 +98,7 @@
       </button>
       <button type="submit"
               class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">
-       {{ mode === 'edit' ? 'Mettre à jour' : 'Créer' }}
+       {{ mode === 'edit' ? 'Update' : 'Create' }}
       </button>
     </div>
   </form>

@@ -229,5 +229,11 @@ public class ProjectService {
     }
 
 
+    public List<ProjectDTO> searchProjectByName(String projectName){
+        List<Project> projectSearch = this.projectRepository.findByNameContainingIgnoreCase(projectName);
+        return projectSearch.stream().map(ProjectDTO::new).collect(Collectors.toList());
+    }
+
+
 
 }
